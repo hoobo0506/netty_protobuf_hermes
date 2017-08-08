@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.bihu.mypushnetty">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <application
+        android:name=".app.MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!--赵立飞资深工程师的跨进程框架-->
+        <service android:name="xiaofei.library.hermes.HermesService$HermesService0"/>
+        <service android:name=".netty.MinaService"
+                 android:process=":mina">
+        </service>
+    </application>
+
+</manifest>

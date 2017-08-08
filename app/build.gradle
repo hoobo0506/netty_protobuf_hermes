@@ -1,0 +1,151 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.protobuf'
+apply plugin: 'dexknifePlus'//分包2
+apply plugin: 'com.bugtags.library.plugin'//applu Bugtags plugin
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+//    multiDexEnabled true
+    defaultConfig {
+        applicationId "com.bihu.mypushnetty"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        jackOptions { enabled true }
+        ndk {
+            // 设置支持的 SO 库构架，一般而言，取你所有的库支持的构架的`交集`。
+            abiFilters 'armeabi'// 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64', 'mips', 'mips64'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            proto {
+                srcDir 'src/main/java/com/bihu/mypushnetty/proto'
+                include '**/*.proto'
+            }
+            java {
+                srcDir 'src/main/java'
+            }
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+//        exclude 'META-INF/INDEX.LIST'
+    }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+    dexKnife {
+        //必选参数
+        enabled true //if false,禁用分包插件
+        //可选参数
+        //1.如果没有可选参数，将根据 enabled 决定是否分包。
+        //2.如果有可选参数，需满足必选参数和可选参数的条件才允许分包
+//        productFlavor 'mock'
+//        buildType 'debug'
+
+        /*
+        *eg:当前 productFlavors = dev，buildType = debug，
+        *参数组合 1：enabled = true，productFlavor = dev，buildType = debug 分包
+        *参数组合 2：enabled = true，productFlavor = mock，buildType = debug 不分包
+        *参数组合 1：enabled = true，buildType = debug 所有 buildType = debug 分包
+        *参数组合 1：enabled = true，productFlavor = dev 所有 productFlavor = dev 分包
+        * */
+    }
+}
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.3.0'
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                remove java
+            }
+            task.builtins {
+                java {
+//                    generatedFilesBaseDir = "$projectDir/src/main/java/proto"
+                }
+            }
+        }
+    }
+    generatedFilesBaseDir = "$projectDir/src/main/java/com/bihu/mypushnetty/protobuf/"
+}
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile("com.android.support.test.espresso:espresso-core:$rootProject.ext.espressoVersion", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.google.protobuf:protobuf-java:3.3.1'
+    compile 'com.google.protobuf:protoc:3.3.0'
+    compile 'io.netty:netty-all:5.0.0.Alpha2'
+    compile 'com.android.support:multidex:1.0.1'
+    //IPC 框架
+    compile 'xiaofei.library:hermes:0.7.0'
+    //IPC 事件发布框架
+    compile 'xiaofei.library:hermes-eventbus:0.3.0'
+    //dagger2
+    compile 'com.google.dagger:dagger:2.7'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.7'
+    //    provided 'org.glassfish:javax.annotation:10.0-b28'
+    //    compile 'com.google.dagger:dagger:2.5'
+    //    compile 'com.google.dagger:dagger-compiler:2.5'
+    //retrofit
+//    compile 'com.squareup.okhttp3:okhttp:3.8.1'
+//    compile 'com.squareup.okio:okio:1.13.0'
+//    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+//    //    compile 'com.squareup.retrofit2:retrofit-adapters:2.3.0'
+//    //    compile 'com.squareup.retrofit2:retrofit-converters:2.3.0'
+//    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+//    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+    //support
+    compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
+    compile "com.android.support:design:$rootProject.ext.supportLibraryVersion"
+    testCompile "junit:junit:$rootProject.ext.junitVersion"
+    //    compile "org.mockito:mockito-core:$rootProject.ext.mockitoVersion"
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.bugtags.library:bugtags-lib:2.3.1'
+    //data binding
+//    compile 'com.android.databinding:baseLibrary:2.3.0'
+//    compile 'com.android.databinding:compilerCommon:2.3.0'
+//    annotationProcessor 'com.android.databinding:compiler:2.3.0'
+//    compile 'io.reactivex.rxjava2:rxjava:2.1.2'
+//    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+}
+afterEvaluate {
+    tasks.matching {
+        it.name.startsWith('dex')
+    }.each { dx ->
+        if (dx.additionalParameters == null) {
+            dx.additionalParameters = []
+        }
+        dx.additionalParameters += '--set-max-idx-number=48000'
+        dx.additionalParameters += "--main-dex-list=$projectDir/multidex.keep".toString()
+    }
+}
+configurations.all {
+    resolutionStrategy {
+        force 'org.hamcrest:hamcrest-core:1.3'
+        force 'com.google.code.findbugs:jsr305:1.3.9'
+    }
+}
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}

@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+message ClientMessage {
+    int32 type = 1; //类型1=socket登录，2=退出领取红包，3=领取红包消息，4=GPS位置信息，5=司机端消息
+    HeartBeat heartBeat = 2; //socket登录
+    LogOut logOut = 3; //退出领取红包
+    RedPacket redPacket = 4; //领取红包消息
+    GpsInfo gpsInfo = 5; //GPS位置信息
+    DriverMsg driverMsg = 6; //司机端消息
+}
+
+message HeartBeat {
+    string sid = 1; //服务ID
+    string imei = 2; //手机唯一编号
+}
+
+message LogOut {
+    string sid = 1; //服务ID
+    int32 result = 2; //1成功，2失败
+    string title = 3; //消息标题
+    string content = 4; //消息内容
+}
+
+message RedPacket {
+    string sid = 1; //服务ID
+    int32 result = 2; //1成功，2失败
+    int32 price = 3; //红包金额单位分
+    string title = 4; //消息标题
+    string content = 5; //消息内容
+}
+
+message GpsInfo {
+    string device_id = 1; //设备ID
+    string lng = 2; //经度
+    string lat = 3; //纬度
+}
+
+message DriverMsg {
+    string sid = 1; //服务ID
+    int32 result = 2; //1成功，2失败
+    string title = 3; //消息标题
+    string content = 4; //消息内容
+}
